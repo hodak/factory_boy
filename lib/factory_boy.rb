@@ -3,10 +3,10 @@ require "factory_boy/version"
 module FactoryBoy
   @defined_factories = []
 
-  def self.define_factory(klass_or_symbol, &block)
+  def self.define_factory(klass_or_symbol, opts = {}, &block)
     if klass_or_symbol.is_a? Symbol
       begin
-        klass = Object.const_get(klass_or_symbol.to_s.split("_").map(&:capitalize).join)
+        klass = opts[:class] || Object.const_get(klass_or_symbol.to_s.split("_").map(&:capitalize).join)
         @defined_factories << { name: klass_or_symbol, klass: klass, default_block: block }
       rescue NameError
         raise SymbolNotMatchingClass

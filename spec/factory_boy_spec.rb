@@ -22,6 +22,10 @@ describe FactoryBoy do
     it "raises error when symbol doesn't match any existing class" do
       expect { FactoryBoy.define_factory(:hodor) }.to raise_error(FactoryBoy::SymbolNotMatchingClass)
     end
+
+    it "can receive hash with options" do
+      expect(FactoryBoy.define_factory(:test_user, class: TestUser)).to eql true
+    end
   end
 
   describe ".build" do
@@ -89,6 +93,11 @@ describe FactoryBoy do
       it "doesn't build when factory was defined with symbol but called with class" do
         FactoryBoy.define_factory(:test_user)
         expect { FactoryBoy.build(TestUser) }.to raise_error(FactoryBoy::FactoryNotDefinedError)
+      end
+
+      it "builds object based on class given in options" do
+        FactoryBoy.define_factory(:admin, class: TestUser)
+        expect(FactoryBoy.build(:admin)).is_a?(TestUser)
       end
     end
   end
