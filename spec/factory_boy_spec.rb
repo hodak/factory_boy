@@ -14,6 +14,14 @@ describe FactoryBoy do
     it "can define factory" do
       expect(FactoryBoy.define_factory(TestUser)).to eql true
     end
+
+    it "can receive symbol" do
+      expect(FactoryBoy.define_factory(:test_user)).to eql true
+    end
+
+    it "raises error when symbol doesn't match any existing class" do
+      expect { FactoryBoy.define_factory(:hodor) }.to raise_error(FactoryBoy::SymbolNotMatchingClass)
+    end
   end
 
   describe ".build" do
@@ -68,6 +76,19 @@ describe FactoryBoy do
         end
         user = FactoryBoy.build(TestUser, name: "FOOBAR")
         expect(user.name).to eql "FOOBAR"
+      end
+    end
+
+    describe "symbols" do
+      it "builds object instantiated from class from symbol name" do
+        FactoryBoy.define_factory(:test_user)
+        user = FactoryBoy.build(:test_user)
+        expect(user).is_a?(TestUser)
+      end
+
+      it "doesn't build when factory was defined with symbol but called with class" do
+        FactoryBoy.define_factory(:test_user)
+        expect { FactoryBoy.build(TestUser) }.to raise_error(FactoryBoy::FactoryNotDefinedError)
       end
     end
   end
