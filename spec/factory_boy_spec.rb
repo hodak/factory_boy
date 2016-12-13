@@ -37,5 +37,38 @@ describe FactoryBoy do
       FactoryBoy.define_factory(TestUser)
       expect { FactoryBoy.build(TestUser, hodor: "foobar") }.to raise_error(FactoryBoy::AttributeDoesNotExist)
     end
+
+    describe "default attributes set" do
+      it "can set default attributes" do
+        FactoryBoy.define_factory(TestUser) do
+          name "foobar"
+        end
+        user = FactoryBoy.build(TestUser)
+        expect(user.name).to eql "foobar"
+      end
+
+      it "raises error when default attribute doesn't exist" do
+        FactoryBoy.define_factory(TestUser) do
+          hodor "foobar"
+        end
+        expect { user = FactoryBoy.build(TestUser) }.to raise_error(FactoryBoy::DefaultAttributeDoesNotExist)
+      end
+
+      it "raises error about default attribute when attribute is missing both from defaults and passed in arg" do
+        FactoryBoy.define_factory(TestUser) do
+          hodor "foobar"
+        end
+        expect { user = FactoryBoy.build(TestUser, hodor: "hodor") }
+          .to raise_error(FactoryBoy::DefaultAttributeDoesNotExist)
+      end
+
+      it "can overwrite default attributes in .build" do
+        FactoryBoy.define_factory(TestUser) do
+          name "foobar"
+        end
+        user = FactoryBoy.build(TestUser, name: "FOOBAR")
+        expect(user.name).to eql "FOOBAR"
+      end
+    end
   end
 end
