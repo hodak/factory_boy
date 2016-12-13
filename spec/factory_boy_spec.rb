@@ -1,5 +1,4 @@
 require "spec_helper"
-require 'factory_boy'
 
 class TestUser
   attr_accessor :name
@@ -20,17 +19,24 @@ describe FactoryBoy do
     end
 
     it "raises error when symbol doesn't match any existing class" do
-      expect { FactoryBoy.define_factory(:hodor) }.to raise_error(FactoryBoy::SymbolNotMatchingClass)
+      expect { FactoryBoy.define_factory(:hodor) }
+        .to raise_error(FactoryBoy::Errors::SymbolNotMatchingClassError)
     end
 
     it "can receive hash with options" do
       expect(FactoryBoy.define_factory(:test_user, class: TestUser)).to eql true
     end
+
+    it "raises error when passed different first argument than class or symbol" do
+      expect { FactoryBoy.define_factory(1, class: TestUser) }
+        .to raise_error(FactoryBoy::Errors::InvalidFactoryNameError)
+    end
   end
 
   describe ".build" do
     it "raises error when factory wasn't defined" do
-      expect { FactoryBoy.build(TestUser) }.to raise_error(FactoryBoy::FactoryNotDefinedError)
+      expect { FactoryBoy.build(TestUser) }
+        .to raise_error(FactoryBoy::Errors::FactoryNotDefinedError)
     end
 
     it "returns instance of given class when factory was defined" do
@@ -47,7 +53,8 @@ describe FactoryBoy do
 
     it "fails when attribute doesn't exist" do
       FactoryBoy.define_factory(TestUser)
-      expect { FactoryBoy.build(TestUser, hodor: "foobar") }.to raise_error(FactoryBoy::AttributeDoesNotExist)
+      expect { FactoryBoy.build(TestUser, hodor: "foobar") }
+        .to raise_error(FactoryBoy::Errors::AttributeDoesNotExistError)
     end
 
     describe "default attributes set" do
@@ -63,7 +70,8 @@ describe FactoryBoy do
         FactoryBoy.define_factory(TestUser) do
           hodor "foobar"
         end
-        expect { user = FactoryBoy.build(TestUser) }.to raise_error(FactoryBoy::DefaultAttributeDoesNotExist)
+        expect { user = FactoryBoy.build(TestUser) }
+          .to raise_error(FactoryBoy::Errors::DefaultAttributeDoesNotExistError)
       end
 
       it "raises error about default attribute when attribute is missing both from defaults and passed in arg" do
@@ -71,7 +79,7 @@ describe FactoryBoy do
           hodor "foobar"
         end
         expect { user = FactoryBoy.build(TestUser, hodor: "hodor") }
-          .to raise_error(FactoryBoy::DefaultAttributeDoesNotExist)
+          .to raise_error(FactoryBoy::Errors::DefaultAttributeDoesNotExistError)
       end
 
       it "can overwrite default attributes in .build" do
@@ -92,7 +100,8 @@ describe FactoryBoy do
 
       it "doesn't build when factory was defined with symbol but called with class" do
         FactoryBoy.define_factory(:test_user)
-        expect { FactoryBoy.build(TestUser) }.to raise_error(FactoryBoy::FactoryNotDefinedError)
+        expect { FactoryBoy.build(TestUser) }
+          .to raise_error(FactoryBoy::Errors::FactoryNotDefinedError)
       end
 
       it "builds object based on class given in options" do
