@@ -8,11 +8,19 @@ module FactoryBoy
     true
   end
 
-  def self.build(klass)
+  def self.build(klass, attrs = {})
     raise FactoryNotDefinedError unless @defined_factories.include?(klass)
-    klass.new
+    inst = klass.new
+    attrs.each do |name, val|
+      begin
+        inst.public_send("#{name}=", val)
+      rescue NoMethodError
+        raise AttributeDoesNotExist
+      end
+    end
+    inst
   end
 
-  class FactoryNotDefinedError < StandardError
-  end
+  class FactoryNotDefinedError < StandardError; end
+  class AttributeDoesNotExist < StandardError; end
 end

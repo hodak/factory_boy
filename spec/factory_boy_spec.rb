@@ -6,6 +6,10 @@ class TestUser
 end
 
 describe FactoryBoy do
+  before do
+    FactoryBoy.instance_variable_set(:@defined_factories, [])
+  end
+
   describe ".define_factory" do
     it "can define factory" do
       expect(FactoryBoy.define_factory(TestUser)).to eql true
@@ -21,6 +25,17 @@ describe FactoryBoy do
       FactoryBoy.define_factory(TestUser)
       user = FactoryBoy.build(TestUser)
       expect(user).to be_instance_of(TestUser)
+    end
+
+    it "can set attributes" do
+      FactoryBoy.define_factory(TestUser)
+      user = FactoryBoy.build(TestUser, name: "foobar")
+      expect(user.name).to eql "foobar"
+    end
+
+    it "fails when attribute doesn't exist" do
+      FactoryBoy.define_factory(TestUser)
+      expect { FactoryBoy.build(TestUser, hodor: "foobar") }.to raise_error(FactoryBoy::AttributeDoesNotExist)
     end
   end
 end
